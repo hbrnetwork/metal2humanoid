@@ -5,6 +5,7 @@ TODO:
 - berkely-humanoid-lite
 - toddler-bot
 - xle
-(Optional)
+
+(Optional):
 - lekiwi
 - openarms
