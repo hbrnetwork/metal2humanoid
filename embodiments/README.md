@@ -3,9 +3,10 @@
 TODO:
 - asimov-v0
 - berkely-humanoid-lite
-- toddler-bot
-- xle
+- roboto-origin
 
 (Optional):
+- toddler-bot
+- xle
 - lekiwi
 - openarms
