@@ -8,6 +8,7 @@
 
     <default>
         <joint frictionloss="0"/>
+        <motor ctrlrange="-1 1" ctrllimited="true"/>
         <default class="motor">
             <joint damping="0"/>
         </default>
@@ -291,6 +292,34 @@
         <exclude body1="right_ankle_roll_link" body2="right_toe_link" />
         <exclude body1="pelvis_link" body2="torso_link" />
     </contact>
+
+    <actuator>
+        <!-- Leg actuators (Asimov style) -->
+        <motor name="left_hip_pitch_joint" gear="80" joint="left_hip_pitch_joint"/>
+        <motor name="left_hip_roll_joint" gear="80" joint="left_hip_roll_joint"/>
+        <motor name="left_hip_yaw_joint" gear="80" joint="left_hip_yaw_joint"/>
+        <motor name="left_knee_joint" gear="120" joint="left_knee_joint"/>
+        <motor name="left_ankle_pitch_joint" gear="40" joint="left_ankle_pitch_joint"/>
+        <motor name="left_ankle_roll_joint" gear="40" joint="left_ankle_roll_joint"/>
+        <motor name="right_hip_pitch_joint" gear="80" joint="right_hip_pitch_joint"/>
+        <motor name="right_hip_roll_joint" gear="80" joint="right_hip_roll_joint"/>
+        <motor name="right_hip_yaw_joint" gear="80" joint="right_hip_yaw_joint"/>
+        <motor name="right_knee_joint" gear="120" joint="right_knee_joint"/>
+        <motor name="right_ankle_pitch_joint" gear="40" joint="right_ankle_pitch_joint"/>
+        <motor name="right_ankle_roll_joint" gear="40" joint="right_ankle_roll_joint"/>
+        
+        <!-- Arm actuators (Atom01 style) -->
+        <motor name="left_arm_pitch_joint" gear="20" joint="left_arm_pitch_joint"/>
+        <motor name="left_arm_roll_joint" gear="20" joint="left_arm_roll_joint"/>
+        <motor name="left_arm_yaw_joint" gear="40" joint="left_arm_yaw_joint"/>
+        <motor name="left_elbow_pitch_joint" gear="20" joint="left_elbow_pitch_joint"/>
+        <motor name="left_elbow_yaw_joint" gear="20" joint="left_elbow_yaw_joint"/>
+        <motor name="right_arm_pitch_joint" gear="20" joint="right_arm_pitch_joint"/>
+        <motor name="right_arm_roll_joint" gear="20" joint="right_arm_roll_joint"/>
+        <motor name="right_arm_yaw_joint" gear="40" joint="right_arm_yaw_joint"/>
+        <motor name="right_elbow_pitch_joint" gear="20" joint="right_elbow_pitch_joint"/>
+        <motor name="right_elbow_yaw_joint" gear="20" joint="right_elbow_yaw_joint"/>
+    </actuator>
 
     <sensor>
         <gyro name="imu_ang_vel" site="imu_in_pelvis"/>

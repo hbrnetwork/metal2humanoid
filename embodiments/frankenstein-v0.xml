@@ -333,6 +333,21 @@
     </contact>
 
     <actuator>
+        <!-- Leg actuators (Asimov style) -->
+        <motor name="left_hip_pitch_joint" gear="80" joint="left_hip_pitch_joint"/>
+        <motor name="left_hip_roll_joint" gear="80" joint="left_hip_roll_joint"/>
+        <motor name="left_hip_yaw_joint" gear="80" joint="left_hip_yaw_joint"/>
+        <motor name="left_knee_joint" gear="120" joint="left_knee_joint"/>
+        <motor name="left_ankle_pitch_joint" gear="40" joint="left_ankle_pitch_joint"/>
+        <motor name="left_ankle_roll_joint" gear="40" joint="left_ankle_roll_joint"/>
+        <motor name="right_hip_pitch_joint" gear="80" joint="right_hip_pitch_joint"/>
+        <motor name="right_hip_roll_joint" gear="80" joint="right_hip_roll_joint"/>
+        <motor name="right_hip_yaw_joint" gear="80" joint="right_hip_yaw_joint"/>
+        <motor name="right_knee_joint" gear="120" joint="right_knee_joint"/>
+        <motor name="right_ankle_pitch_joint" gear="40" joint="right_ankle_pitch_joint"/>
+        <motor name="right_ankle_roll_joint" gear="40" joint="right_ankle_roll_joint"/>
+        
+        <!-- Arm actuators (Berkeley Humanoid Lite style) -->
         <motor class="berkeley-humanoid-lite" name="arm_left_shoulder_pitch_joint" joint="arm_left_shoulder_pitch_joint" forcerange="-20 20"/>
         <motor class="berkeley-humanoid-lite" name="arm_left_shoulder_roll_joint" joint="arm_left_shoulder_roll_joint" forcerange="-20 20"/>
         <motor class="berkeley-humanoid-lite" name="arm_left_shoulder_yaw_joint" joint="arm_left_shoulder_yaw_joint" forcerange="-20 20"/>

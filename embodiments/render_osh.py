@@ -6,7 +6,7 @@ import mujoco.viewer
 import numpy as np
 
 # Load the Frankenstein robot model
-model = mujoco.MjModel.from_xml_path('embodiments/frankenstein-v0.xml')
+model = mujoco.MjModel.from_xml_path('embodiments/frankenstein-v1.xml')
 data = mujoco.MjData(model)
 
 # Set initial pose - pelvis position (x, y, z) and orientation (quaternion w, x, y, z)
