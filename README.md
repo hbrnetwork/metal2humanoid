@@ -1,4 +1,4 @@
-# Metal2Humanoid
+## Metal2Humanoid
 
 **The [NAND2Tetris](https://www.nand2tetris.org/) of robotics.**  
 A full-stack, open-source curriculum for building humanoid robots from first principles — starting with motors and ending with embodied intelligence.
@@ -7,7 +7,7 @@ Metal2Humanoid is a constructive journey through robotics. Instead of treating r
 
 This repository contains the **core materials for the Metal2Humanoid course**, including open-source robot embodiments, hands-on projects, and supporting documentation.
 
-This course was made in collaboration with **[Menlo Research](https://news.asimov.inc/)**
+This course was made in collaboration with **[Menlo Research](https://asimov.inc/)**
 
 ---
 
@@ -76,6 +76,35 @@ Most projects can be completed fully in simulation; a few are intended to touch 
 
 ---
 
+## `materials/`
+
+The **complete course material archive.**
+
+Structured lesson material organized by section:
+
+```
+materials/
+1.1/
+1.2/
+1.3/
+...
+10.5/
+``` 
+
+This folder represents the canonical curriculum structure.
+
+---
+
+## `examples/`
+
+Minimal, focused **example code and reference implementations.**
+
+Think of this folder as helper functions:
+
+> “Small programs that explain big ideas.”
+
+---
+
 ## `docs/`
 
 **Supporting material and readings.**
@@ -86,6 +115,28 @@ This folder includes:
 - References to textbooks and papers
 - Philosophical and ethical material
 - Links to external tools and resources
+
+---
+
+## `kudos/`
+
+Community contribution system.
+
+This folder contains:
+
+- `README.md` with open tasks   
+- Community point system
+- Contribution tiers
+
+Contributors earn **community points (“kudos”)** for meaningful contributions.
+
+Points may unlock:
+
+- Public recognition  
+- Tier based Swag
+- Invitation to contributor calls  
+
+This project grows through its builders.
 
 ---
 
