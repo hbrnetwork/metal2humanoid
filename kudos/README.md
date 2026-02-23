@@ -39,10 +39,6 @@ Points accumulate over time.
 
 # Open Tasks
 
----
-
-# Open Tasks
-
 | Points | Name | Difficulty | Verifier / Contact |
 |--------|------|------------|-------------------|
 | 5 | Lecture 1 Slide Deck: Build a Motor (Sections 1.1–1.6) | Easy | @wmcclinton|
