@@ -1,0 +1,397 @@
+---
+title: "Configuration Spaces and Robot Geometry"
+tags: ["motion-planning", "robotics", "c-space", "geometry", "topology", "lie-groups"]
+collection: "motion-planning"
+subcollection: "Foundations"
+subcollectionOrder: 1
+order: 1
+lastUpdated: 2026-04-09
+difficulty: beginner
+prereqs: ["mp_notes/mp-00-what-motion-planning-is"]
+next: ["mp_notes/mp-02-collision-checking", "mp_notes/mp-03-graph-search-planning"]
+links: ["mp_notes/mp-00-what-motion-planning-is", "mp_notes/mp-02-collision-checking", "mp_notes/mp-03-graph-search-planning", "mp_notes/mp-05-sampling-based-planning", "mp_notes/mp-06-rrt-planning", "lie-groups-introduction"]
+references:
+  - id: lozanoperez1983
+    title: "Spatial Planning: A Configuration Space Approach"
+    authors: "Lozano-Pérez"
+    year: 1983
+    url: "https://doi.org/10.1109/TC.1983.1676196"
+    venue: "IEEE Transactions on Computers"
+  - id: latombe1991
+    title: "Robot Motion Planning"
+    authors: "Latombe"
+    year: 1991
+    url: "https://link.springer.com/book/10.1007/978-1-4615-4022-9"
+    venue: "Kluwer"
+  - id: lavalle2006
+    title: "Planning Algorithms"
+    authors: "LaValle"
+    year: 2006
+    url: "http://planning.cs.uiuc.edu/"
+    venue: "Cambridge University Press"
+  - id: choset2005
+    title: "Principles of Robot Motion"
+    authors: "Choset et al."
+    year: 2005
+    url: "https://mitpress.mit.edu/9780262033275/"
+    venue: "MIT Press"
+  - id: lynch2017
+    title: "Modern Robotics"
+    authors: "Lynch, Park"
+    year: 2017
+    url: "http://hades.mech.northwestern.edu/index.php/Modern_Robotics"
+    venue: "Cambridge University Press"
+  - id: canny1988
+    title: "The Complexity of Robot Motion Planning"
+    authors: "Canny"
+    year: 1988
+    url: "https://mitpress.mit.edu/9780262031363/"
+    venue: "MIT Press"
+  - id: shoemake1985
+    title: "Animating Rotation with Quaternion Curves"
+    authors: "Shoemake"
+    year: 1985
+    url: "https://doi.org/10.1145/325334.325242"
+    venue: "SIGGRAPH"
+  - id: reif1979
+    title: "Complexity of the Mover's Problem"
+    authors: "Reif"
+    year: 1979
+    url: "https://doi.org/10.1109/SFCS.1979.10"
+    venue: "FOCS"
+---
+
+import { LazyW11, LazyW12, LazyW13, LazyW14 } from '../../../components/widgets/mp/lazy.jsx';
+
+The **configuration space** is the single most important abstraction in motion planning. It lets us replace "a robot with intricate geometry avoiding intricate obstacles" with "a point moving in a higher-dimensional space where the obstacles are already baked in." The cost of this abstraction is that the new space is topologically strange — it is almost never $\mathbb{R}^n$. The reward is that every algorithm in the rest of this series operates on the abstracted version and is blissfully unaware of the underlying mechanical geometry. Introduced by Lozano-Pérez in 1983 [@lozanoperez1983], it is the bedrock the field is built on.
+
+## 1. From workspace to configuration space
+
+Let $\mathcal{W} \subseteq \mathbb{R}^m$ (with $m \in \{2, 3\}$) be the physical **workspace** the robot lives in. The robot is an articulated or rigid body occupying a subset $\mathcal{A}(q) \subseteq \mathcal{W}$ that depends on its joint vector $q$. Obstacles are a subset $\mathcal{O} \subseteq \mathcal{W}$.
+
+> [!math] Definition — configuration space
+> The **configuration space** $\mathcal{C}$ of a robot is the set of all configurations $q$ — i.e., the set of parameter vectors that *completely* determine the robot's pose in the workspace. The **free space** is
+>
+> $$
+> \mathcal{C}_{\text{free}} = \{q \in \mathcal{C} \mid \mathcal{A}(q) \cap \mathcal{O} = \emptyset \text{ and } \mathcal{A}(q) \text{ is self-collision-free}\}
+> $$
+>
+> and the **obstacle region** is $\mathcal{C}_{\text{obs}} = \mathcal{C} \setminus \mathcal{C}_{\text{free}}$.
+
+The key observation is that collision detection in the workspace becomes *containment* in the configuration space: we no longer ask "do these polygons intersect?" but instead "is this point inside this (weird) region?"
+
+**The planning problem restated.** Given $q_s, q_g \in \mathcal{C}_{\text{free}}$, find a continuous function
+$$
+\tau : [0,1] \to \mathcal{C}_{\text{free}}, \qquad \tau(0) = q_s, \quad \tau(1) = q_g.
+$$
+
+Existence of such a $\tau$ reduces exactly to $q_s$ and $q_g$ lying in the same **path-connected component** of $\mathcal{C}_{\text{free}}$ — a purely topological statement. This is why topology matters so much for planning.
+
+## 2. Counting degrees of freedom
+
+A **degree of freedom** (DoF) is an independent parameter needed to specify the pose. For an open kinematic chain, Grübler's formula gives
+
+$$
+\text{DoF} = 6n - \sum_{i=1}^J (6 - f_i)
+$$
+
+for a spatial mechanism with $n$ moving bodies and $J$ joints, where $f_i$ is the number of DoF of joint $i$ (1 for revolute/prismatic, 2 for universal, 3 for spherical). For an open chain with all 1-DoF joints this collapses to $\text{DoF} = n$.
+
+| Robot | DoF | C-space | Topology |
+|---|---|---|---|
+| Point in plane | 2 | $\mathbb{R}^2$ | Euclidean |
+| Point in 3D | 3 | $\mathbb{R}^3$ | Euclidean |
+| Rigid body in plane | 3 | $SE(2) = \mathbb{R}^2 \times S^1$ | Cylinder |
+| Rigid body in 3D | 6 | $SE(3) = \mathbb{R}^3 \rtimes SO(3)$ | $\mathbb{R}^3 \times \mathbb{RP}^3$ |
+| $n$-revolute planar arm | $n$ | $\mathbb{T}^n$ | $n$-torus |
+| Franka Panda arm | 7 | $\mathbb{T}^7$ (with joint limits) | open subset of $\mathbb{R}^7$ |
+| Quadruped with floating base | 18 | $SE(3) \times \mathbb{T}^{12}$ | product manifold |
+| Humanoid (e.g. Atlas) | 30+ | $SE(3) \times \mathbb{T}^{n_j}$ | product manifold |
+
+Observe how quickly dimensions grow. A humanoid's 30-D $\mathcal{C}$ contains $\sim 10^{30}$ cells even at a crude 10-per-dimension grid — already beyond brute force. This is why all modern planners sample or optimise rather than enumerate.
+
+## 3. The manifolds you will actually meet
+
+### 3.1 Euclidean space $\mathbb{R}^n$
+Prismatic joints and free-floating point robots give a true Euclidean $\mathcal{C}$. Distances are Euclidean, interpolation is linear, everything is easy. Almost nothing in robotics lives here exclusively.
+
+### 3.2 The circle $S^1$ and the torus $\mathbb{T}^n$
+A single revolute joint has configuration space $S^1$: angles $\theta$ and $\theta + 2\pi$ are the same physical point. The right distance is the **wrapped** angular distance:
+
+$$
+d_{S^1}(\theta_1, \theta_2) = \min(|\theta_1 - \theta_2|,\ 2\pi - |\theta_1 - \theta_2|).
+$$
+
+Equivalently, viewing $S^1 \hookrightarrow \mathbb{R}^2$ via $\theta \mapsto (\cos\theta, \sin\theta)$, the chord distance $2\sin(d/2)$ is monotone in $d$, so using Euclidean distance on the embedded circle is fine — an important trick for nearest-neighbour searches.
+
+An $n$-joint all-revolute arm has $\mathcal{C} = \mathbb{T}^n$, the $n$-torus. Its topology is fundamentally non-Euclidean: there exist loops that cannot be continuously shrunk to a point. This matters because a shortest path on the torus may wrap around.
+
+> [!warning] Wraparound bugs are the first real bug you will write
+> It is tempting to treat angular joints as if they live in $\mathbb{R}$. This produces planners that take the scenic route ($3\pi/2$ radians CCW instead of $\pi/2$ CW) and, worse, nearest-neighbour structures that are silently wrong. Always pick a metric that matches the topology of your space.
+
+### 3.3 $SE(2)$: planar rigid bodies
+A rigid body in the plane has $\mathcal{C} = \mathbb{R}^2 \times S^1$, parameterised as $(x, y, \theta)$. It is a group under composition:
+
+$$
+(x_1, y_1, \theta_1) \cdot (x_2, y_2, \theta_2) = \left(x_1 + \cos\theta_1\, x_2 - \sin\theta_1\, y_2,\ y_1 + \sin\theta_1\, x_2 + \cos\theta_1\, y_2,\ \theta_1 + \theta_2\right).
+$$
+
+A natural metric is the **weighted Euclidean** distance
+
+$$
+d_{SE(2)}((x_1,y_1,\theta_1), (x_2,y_2,\theta_2)) = \sqrt{(x_1-x_2)^2 + (y_1-y_2)^2 + w^2 d_{S^1}(\theta_1,\theta_2)^2}
+$$
+
+where $w$ is a user-chosen weight balancing angular and translational "importance." There is no principled universal choice of $w$ — it depends on how far the robot tends to translate vs. rotate per plan. Picking $w$ badly makes sampling-based planners silently wrong (by deforming which neighbours look close).
+
+### 3.4 $SO(3)$ and $SE(3)$: 3D orientations and rigid bodies
+Rotations in 3D form the group
+
+$$
+SO(3) = \{R \in \mathbb{R}^{3\times 3} \mid R^\top R = I,\ \det R = 1\}.
+$$
+
+This is a **3-dimensional Lie group** — a smooth manifold that is also a group. Several coordinatisations exist, each with pathologies:
+
+- **Euler angles** (roll, pitch, yaw): 3 parameters but singular (gimbal lock); two rotation axes align and you lose a DoF.
+- **Axis-angle** $(\hat{\omega}, \theta)$: 3 parameters (packed as $\theta\hat\omega \in \mathbb{R}^3$); not unique at $\theta = 0$ or $\theta = \pi$.
+- **Rotation matrices**: 9 parameters with 6 constraints — no singularities, but inflated.
+- **Unit quaternions** $\mathbb{S}^3 \subset \mathbb{R}^4$: 4 parameters with one constraint $\|q\|=1$; no singularities, but $q$ and $-q$ represent the same rotation, so the underlying manifold is the real projective space $\mathbb{RP}^3$.
+
+The unit quaternion representation is almost universally the right choice in a motion planner. Interpolation between two orientations uses spherical linear interpolation (**SLERP**) [@shoemake1985]:
+
+$$
+\text{SLERP}(q_1, q_2, t) = \frac{\sin((1-t)\Omega)}{\sin\Omega} q_1 + \frac{\sin(t\Omega)}{\sin\Omega} q_2,\qquad \cos\Omega = q_1 \cdot q_2.
+$$
+
+**Bi-invariant distance** on $SO(3)$:
+
+$$
+d_{SO(3)}(R_1, R_2) = \|\log(R_1^\top R_2)\|_F / \sqrt 2 = \arccos\!\left(\frac{\mathrm{tr}(R_1^\top R_2) - 1}{2}\right).
+$$
+
+This is the angle of the smallest rotation that takes $R_1$ to $R_2$, and is the only metric that respects the symmetry of the group.
+
+$SE(3) = \mathbb{R}^3 \rtimes SO(3)$ adds translation. A common practical metric is weighted Euclidean on position plus a weighted bi-invariant angle, with the usual caveat about weight selection.
+
+<LazyW13 client:only="react" />
+
+*Compare Euler-angle linear interpolation with SLERP on the same start and end orientation. The Euler path wobbles and can gimbal-lock; SLERP traces a constant-angular-velocity rotation about a single fixed axis.*
+
+For the full Lie-group machinery of $SE(3)$ — exponential maps, twists, adjoint representations — see [[lie-groups-introduction|the dedicated Lie groups note]] or [@lynch2017] Chapter 3. In this series we use enough of it to make sampling, interpolation, and distances work; we do not derive the machinery from scratch.
+
+## 4. Computing C-space obstacles: the Minkowski sum
+
+For a **translating-only** rigid body $\mathcal{A} \subset \mathbb{R}^m$ among obstacles $\mathcal{B} \subset \mathbb{R}^m$, the C-obstacle is
+
+$$
+\mathcal{C}_{\text{obs}} = \mathcal{B} \oplus (-\mathcal{A}) = \{\mathbf{b} - \mathbf{a} \mid \mathbf{b} \in \mathcal{B},\ \mathbf{a} \in \mathcal{A}\},
+$$
+
+where $\oplus$ denotes the **Minkowski sum**. The intuition: $q \in \mathcal{C}_{\text{obs}}$ iff there exists $\mathbf{a} \in \mathcal{A}$ with $q + \mathbf{a} \in \mathcal{B}$, i.e. iff some point of the robot (translated to $q$) is inside an obstacle point.
+
+### 4.1 Why it works
+Let $\mathcal{A}(q) = q + \mathcal{A}_0$ be the robot placed at configuration $q$, where $\mathcal{A}_0$ is the robot in its reference pose. Then
+
+$$
+\mathcal{A}(q) \cap \mathcal{B} \neq \emptyset \iff \exists \mathbf{a} \in \mathcal{A}_0: q + \mathbf{a} \in \mathcal{B} \iff q \in \mathcal{B} + (-\mathcal{A}_0) = \mathcal{B} \oplus (-\mathcal{A}_0).
+$$
+
+So the obstacle in $\mathcal{C}$ is literally the obstacle in workspace, inflated by the reflected robot.
+
+### 4.2 Convex Minkowski sums via rotating calipers
+For convex polygons, the Minkowski sum is convex and has at most $|\mathcal{A}| + |\mathcal{B}|$ vertices. A classical linear-time algorithm uses **rotating calipers**: list the edges of both polygons in CCW order by angle; walk the merged list, outputting sums of corresponding vertices.
+
+```python title="minkowski_sum.py"
+import numpy as np
+
+def minkowski_sum(poly_a, poly_b):
+    """Minkowski sum of two CCW-ordered convex polygons.
+
+    Both inputs are lists of (x, y) vertices in CCW order with the
+    smallest (y, x) vertex first. Returns the sum polygon in CCW order.
+    Runs in O(|A| + |B|).
+    """
+    def edges(p):
+        return [np.array(p[(i+1) % len(p)]) - np.array(p[i])
+                for i in range(len(p))]
+
+    ea, eb = edges(poly_a), edges(poly_b)
+    i = j = 0
+    result = []
+    base = np.array(poly_a[0]) + np.array(poly_b[0])
+    result.append(base.tolist())
+
+    while i < len(ea) or j < len(eb):
+        if j == len(eb) or (i < len(ea) and np.cross(ea[i], eb[j]) >= 0):
+            base = base + ea[i]; i += 1
+        else:
+            base = base + eb[j]; j += 1
+        result.append(base.tolist())
+
+    return result[:-1]  # last point coincides with first
+```
+
+<LazyW12 client:only="react" />
+
+*Edit the two polygons directly — drag vertices, add or remove them, or drag whole shapes. The green outline is $A \oplus B$; toggle **Reflect A** to see the C-obstacle interpretation $B \oplus (-A)$.*
+
+### 4.3 What happens when the robot can rotate
+For a rigid body that both translates *and* rotates, $\mathcal{C} = SE(2)$ or $SE(3)$, and $\mathcal{C}_{\text{obs}}$ is a **3- or 6-dimensional region** that can be constructed as a stack of translation-only Minkowski sums, one per orientation:
+
+$$
+\mathcal{C}_{\text{obs}} = \bigcup_{\theta \in S^1}\{\theta\} \times \big(\mathcal{B} \oplus (-R_\theta \mathcal{A}_0)\big).
+$$
+
+The slices for different $\theta$ are different shapes. Critically, **the union is almost never convex** even if $\mathcal{A}_0$ and $\mathcal{B}$ are: rotating the robot changes which edge is closest to the obstacle, producing non-convex "swept" regions with curved boundaries. This is already enough to kill naive approaches.
+
+### 4.4 Why we abandon explicit computation in high dimensions
+For an $n$-joint revolute arm, $\mathcal{C}_{\text{obs}}$ is an $n$-dimensional region with no closed-form description. Canny [@canny1988] gave a singly-exponential ($O(n^{\text{polylog}})$) algorithm for explicit computation under strong assumptions, but in practice — for $n \ge 3$ — we give up entirely on representing $\mathcal{C}_{\text{obs}}$ and instead provide an **oracle**: a function that tells us, for any $q$, whether $q \in \mathcal{C}_{\text{free}}$. This is the job of the [[mp_notes/mp-02-collision-checking|collision checker]] and the reason it dominates planning wall-clock time.
+
+## 5. Metrics, interpolation, and sampling
+
+Because motion planners will need to (a) measure distance, (b) interpolate between two configurations, and (c) sample configurations from $\mathcal{C}$, every C-space needs equipping with three operations:
+
+### 5.1 Distance
+A metric $d: \mathcal{C} \times \mathcal{C} \to \mathbb{R}_{\ge 0}$ with $d(q_1,q_2) = 0 \iff q_1 = q_2$, symmetry, and the triangle inequality. The "right" metric depends on the manifold:
+
+- $\mathbb{R}^n$: Euclidean, optionally weighted.
+- $S^1$: wrapped angular.
+- $\mathbb{T}^n$: sum of wrapped angular distances per joint, or Euclidean distance on the embedded $(\cos, \sin)$ coordinates.
+- $SO(3)$: arccos trace formula above, or geodesic on the unit quaternion sphere (equivalent up to a factor of 2).
+- $SE(3)$: weighted combination; no canonical choice.
+
+### 5.2 Interpolation
+Given two configurations $q_1, q_2$ and $t \in [0,1]$, produce $q(t) \in \mathcal{C}$ such that $q(0) = q_1$, $q(1) = q_2$. Interpolation must **track the geodesic**:
+
+- $\mathbb{R}^n$: linear.
+- $S^1$: linear in the wrapped sense (go the short way).
+- $SO(3)$: SLERP on quaternions.
+- $SE(3)$: linear translation + SLERP rotation (practical), or exact screw motion via Lie-algebra exponentials (principled; see [[lie-groups-introduction|the dedicated Lie groups note]]).
+
+### 5.3 Sampling
+Random sampling from $\mathcal{C}$ is a prerequisite for [[mp_notes/mp-05-sampling-based-planning|PRM]] and [[mp_notes/mp-06-rrt-planning|RRT]]. "Uniform" is subtle:
+
+- $\mathbb{R}^n$: hypercube rejection.
+- $\mathbb{T}^n$: uniform per angle.
+- $SO(3)$: uniformly sampling Euler angles is **biased**! The right method samples unit quaternions uniformly on $\mathbb{S}^3$ (e.g. using three standard normals normalised to unit length, or the Shoemake subgroup algorithm).
+
+```python title="uniform_so3.py"
+import numpy as np
+
+def uniform_quaternion():
+    """Uniform sample on S^3 (equivalently SO(3) up to antipodal)."""
+    u1, u2, u3 = np.random.random(3)
+    q = np.array([
+        np.sqrt(1 - u1) * np.sin(2*np.pi*u2),
+        np.sqrt(1 - u1) * np.cos(2*np.pi*u2),
+        np.sqrt(u1)     * np.sin(2*np.pi*u3),
+        np.sqrt(u1)     * np.cos(2*np.pi*u3),
+    ])
+    return q
+```
+
+This is Shoemake's 1992 subgroup algorithm; see [@lavalle2006] §5.2 for the derivation from Haar measure on $SO(3)$.
+
+## 6. Worked example: the planar 2R arm
+
+The 2R planar arm — two rigid links of lengths $\ell_1, \ell_2$ connected by two revolute joints — is the canonical "toy that is not too toy" for C-space intuition. Its forward kinematics are
+
+$$
+x(\theta_1, \theta_2) = \ell_1 \cos\theta_1 + \ell_2 \cos(\theta_1 + \theta_2),
+$$
+$$
+y(\theta_1, \theta_2) = \ell_1 \sin\theta_1 + \ell_2 \sin(\theta_1 + \theta_2).
+$$
+
+Its C-space is $\mathbb{T}^2$: both angles are periodic. Unroll $\mathbb{T}^2$ into the unit square $[0, 2\pi)^2$ with identified edges; the resulting picture is the standard "torus as square" diagram.
+
+**Computing $\mathcal{C}_{\text{obs}}$ numerically.** There is no closed form. We grid $\mathbb{T}^2$ at some resolution, run forward kinematics at each grid point, test for collision between the link geometry and the workspace obstacles, and mark collisions. With a 200×200 grid that's 40,000 collision checks; perfectly tractable.
+
+```python title="2r_arm_cobs.py"
+import numpy as np
+
+def arm_segments(theta1, theta2, L1=1.0, L2=1.0):
+    """Return the two link segments as ((x0,y0),(x1,y1))."""
+    x1 = L1*np.cos(theta1); y1 = L1*np.sin(theta1)
+    x2 = x1 + L2*np.cos(theta1 + theta2); y2 = y1 + L2*np.sin(theta1 + theta2)
+    return ((0.0, 0.0), (x1, y1)), ((x1, y1), (x2, y2))
+
+def segment_intersects_circle(p0, p1, center, radius):
+    """Closest-point test: segment vs. circular obstacle."""
+    d = np.array(p1) - np.array(p0); f = np.array(p0) - np.array(center)
+    a = d @ d; b = 2*(f @ d); c = f @ f - radius**2
+    disc = b*b - 4*a*c
+    if disc < 0: return False
+    disc = np.sqrt(disc); t1 = (-b - disc)/(2*a); t2 = (-b + disc)/(2*a)
+    return (0 <= t1 <= 1) or (0 <= t2 <= 1) or (t1 < 0 and t2 > 1)
+
+def c_obstacle_grid(obstacles, resolution=200):
+    """Returns a boolean grid where True = collision."""
+    grid = np.zeros((resolution, resolution), dtype=bool)
+    thetas = np.linspace(0, 2*np.pi, resolution, endpoint=False)
+    for i, t1 in enumerate(thetas):
+        for j, t2 in enumerate(thetas):
+            s1, s2 = arm_segments(t1, t2)
+            for (cx, cy, r) in obstacles:
+                if segment_intersects_circle(*s1, (cx,cy), r) or \
+                   segment_intersects_circle(*s2, (cx,cy), r):
+                    grid[i, j] = True; break
+    return grid
+```
+
+If you run this with a single circular obstacle near the workspace origin, $\mathcal{C}_{\text{obs}}$ looks like a pair of twisted bands on the torus — nothing like the circular shape in workspace, and visibly *wrapping around*. This is the picture everyone must see at least once.
+
+<LazyW11 client:only="react" />
+
+*Left: the 2R arm in workspace. Right: its configuration space as the unit square $[0,2\pi)^2$, with edges identified. Drag the obstacle in workspace and watch one round shape become a pair of twisted bands in C-space; click anywhere in the right panel to teleport the arm to that configuration.*
+
+## 7. Topology bites back
+
+Consider two configurations $q_s = (0.1, 0.0)$ and $q_g = (2\pi - 0.1, 0.0)$ in $\mathbb{T}^2$. In the unwrapped square they look far apart — Euclidean distance $\approx 2\pi - 0.2 \approx 6.08$. In the torus, they are *close*: the short path goes through the identification $\theta_1 = 0 \equiv 2\pi$, and the geodesic distance is only $0.2$.
+
+<LazyW14 client:only="react" />
+
+*The unrolled torus on the left, the true $\mathbb{T}^2$ on the right. The dashed orange segment is the naive Euclidean straight line in the unwrapped square — wrong. The green curve is the actual geodesic, which may leave one edge and re-enter on the other. Drag either endpoint to explore.*
+
+> [!warning] Your nearest-neighbour data structure must know the topology
+> Standard $k$-d trees and ball trees assume a Euclidean metric. For toroidal dimensions you must either wrap the coordinates explicitly, embed into $(\cos, \sin)$ doubles (doubling memory but straightforward), or use a library that supports non-Euclidean metrics (e.g. OMPL's `GNAT`). Getting this wrong produces plans that silently waste half the configuration space.
+
+Topology affects more than distance:
+
+- **Homotopy classes.** Two paths can be in the same path-connected component but not homotopic — you can't deform one into the other. Planning the "other side" of an obstacle in a multiply-connected space is a different homotopy class. This matters for multi-robot coordination and for human-like motion.
+- **Contractibility.** $\mathbb{R}^n$ is contractible; $\mathbb{T}^n$ is not; $SO(3) \cong \mathbb{RP}^3$ is not (its fundamental group is $\mathbb{Z}/2$). These facts occasionally matter for proving convergence properties of global planners.
+- **Dimensionality curse.** $\mathcal{C}$ for a humanoid has volume whose unit-ball fraction scales like $1/\Gamma(n/2+1)$. In $n = 30$ dimensions, the unit ball occupies essentially zero fraction of the unit cube. Any naive volume-based argument collapses.
+
+## 8. The complexity of motion planning
+
+Reif [@reif1979] proved, already in 1979, that the **general motion planning problem** — deciding whether a piecewise-linear $d$-DoF robot can reach a goal among polyhedral obstacles — is **PSPACE-hard** in $d$. Canny [@canny1988] later gave a singly-exponential algorithm, matching the complexity lower bound: the general problem is inherently exponential in the dimension.
+
+> [!math] Theorem — Canny, 1988
+> The generalised mover's problem for a $d$-DoF robot in $\mathbb{R}^3$ with $n$ algebraic-surface obstacle facets can be solved in time $n^{O(1)} 2^{O(d)}$ [@canny1988].
+
+Combined with Reif's hardness result, this tells us that the dependence on dimension is essentially optimal in the worst case. **Low-dimensional cases** admit much better algorithms:
+
+| Setting | Complexity |
+|---|---|
+| 2D translation, polygonal obstacles | $O(n \log n)$ (visibility graphs) |
+| 2D translation + rotation | PSPACE-hard in general |
+| 3D translation, convex obstacles | polynomial |
+| 3D rigid body, polyhedral | singly exponential |
+| $d$-DoF general | PSPACE-complete |
+
+The practical consequences of this hardness are everywhere. We cannot compute $\mathcal{C}_{\text{obs}}$ explicitly; we cannot enumerate its connected components; we cannot even decide reachability optimally. **Every practical planner is an approximation**: grid discretisation (resolution completeness), random sampling (probabilistic completeness), or gradient-based local search (no completeness, but fast). The rest of the series is essentially a tour of how each approximation copes with this unavoidable hardness.
+
+## 9. Exercises
+
+1. **Minkowski sum by hand.** Let $A$ be a unit square centred at the origin and $B$ be an equilateral triangle with vertices at $(0, 0), (2, 0), (1, \sqrt 3)$. Compute $A \oplus B$ and $B \oplus (-A)$, and draw the results. Verify your answer by running `minkowski_sum` from §4.2.
+
+2. **Wrapped angular distance.** Prove that $d_{S^1}(\theta_1, \theta_2) = \min(|\theta_1 - \theta_2|, 2\pi - |\theta_1 - \theta_2|)$ is a metric (symmetry, positive definiteness, triangle inequality).
+
+3. **2R arm C-obstacle.** Implement `c_obstacle_grid` and plot $\mathcal{C}_{\text{obs}}$ for: (a) a single circular obstacle of radius 0.3 at $(1.2, 0.6)$; (b) two such obstacles at $(1, 0)$ and $(0, 1)$. Identify, visually, a start/goal pair in $\mathcal{C}_{\text{free}}$ whose shortest geodesic wraps around the torus.
+
+4. **Quaternion SLERP.** Derive the SLERP formula starting from the geodesic ODE on the unit sphere $\mathbb{S}^3$. Show that $|q(t)| = 1$ and that the angular velocity $\omega$ is constant.
+
+5. **Uniform $SO(3)$ sampling.** Show that uniformly sampling Euler angles $(\phi, \theta, \psi)$ from $[0, 2\pi) \times [0, \pi) \times [0, 2\pi)$ *does not* yield the uniform (Haar) distribution on $SO(3)$. Find the correct density, and verify Shoemake's algorithm in `uniform_quaternion` is correct by sampling $10^5$ quaternions and checking that the distribution of the axis $\hat\omega$ is uniform on $\mathbb{S}^2$.
+
+6. **Canny's complexity bound.** State precisely what "singly exponential in the number of DoF" means for a 7-DoF arm with 100 obstacle facets. What is the constant in front? (Don't plug it in — just discuss what it implies.)

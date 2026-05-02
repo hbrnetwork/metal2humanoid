@@ -1,41 +1,45 @@
-# Project Wiki / MDX Documentation Workflow
+# CLAUDE.md
 
-This repo is not just for code. It is also a learning journal, technical wiki, and compounding knowledge base.
+This file gives Claude instructions for helping maintain this repository’s learning wiki.
 
-Your goal is to work with Claude to turn everything you implement, debug, and learn into organized `.mdx` lesson notes that future students can understand and build on.
+The repository is not just for code. It is also a living technical wiki and learning journal. Your job is to help turn rough work, implementation notes, debugging sessions, experiments, and concepts into organized `.mdx` lesson files.
 
 The goal is not to produce homework-style reports. The goal is to create a compounding knowledge base: every implementation, bug, explanation, experiment, and lesson should make the next student faster.
 
-Use the attached examples as the target style:
-
-- `mp-01-configuration-space.mdx` — example of a polished technical lesson
-- `formatting.mdx` — reference for supported Markdown / MDX syntax
-
 ---
 
-## 1. Core idea
+## 1. Primary responsibility
 
-Every meaningful piece of work should become a small, organized, self-contained `.mdx` note.
+When the student asks for help, Claude should help them produce clear, truthful, organized `.mdx` notes.
 
-A note should be understandable by a student who knows basic programming and math, but has not seen your exact implementation before.
+Prioritize:
 
-Good notes answer:
+1. Technical accuracy
+2. Reproducibility
+3. Clear explanations
+4. Honest uncertainty
+5. Good file organization
+6. Reusable examples
 
-1. What problem was I trying to solve?
-2. Why does it matter?
-3. What concept did I learn?
-4. What did I implement?
-5. What worked?
-6. What failed?
-7. What should the next person try?
+Do **not** invent results, fake citations, pretend code worked, or hide uncertainty.
 
-Do **not** only document finished work. Document the path.
+If something is unclear, mark it as:
+
+```md
+TODO: needs verification
+```
+
+or:
+
+```md
+Unclear: this still needs to be tested.
+```
 
 ---
 
 ## 2. Required file organization
 
-Organize notes under:
+All notes should live under:
 
 ```txt
 materials/notes/{topic}/{subtopic}.mdx
@@ -43,7 +47,7 @@ materials/notes/{topic}/{subtopic}.mdx
 
 Where:
 
-- `{topic}` is a broad category, such as `robotics`, `ml`, `rl`, etc.
+- `{topic}` is a broad category, such as `robotics`, `ml`, `rl`, `simulation`, `experiments`, `debugging`, or `references`.
 - `{subtopic}` is a self-contained lesson, concept, implementation, debugging note, or experiment.
 
 Use lowercase filenames with hyphens.
@@ -54,6 +58,10 @@ Good examples:
 materials/notes/robotics/configuration-space.mdx
 materials/notes/robotics/forward-kinematics.mdx
 materials/notes/ml/decision-trees.mdx
+materials/notes/rl/deep-q-networks.mdx
+materials/notes/simulation/mujoco-basics.mdx
+materials/notes/debugging/pybullet-install-issues.mdx
+materials/notes/experiments/rrt-parameter-sweep.mdx
 ```
 
 Bad examples:
@@ -69,70 +77,64 @@ Each `.mdx` file should be a self-contained lesson with examples.
 
 ---
 
-## 3. Suggested repo structure
+## 3. Suggested topic folders
 
-Use this general organization:
+Use these folders when appropriate:
 
 ```txt
 materials/
   notes/
     robotics/
-      configuration-space.mdx
-      forward-kinematics.mdx
-      inverse-kinematics.mdx
-
     ml/
-      neural-nets.mdx
-      decision-trees.mdx
-      support-vector-machiens.mdx
-
     rl/
-      deep-q-networks.mdx
-      sarsa-agents.mdx
-
     simulation/
-      mujoco-basics.mdx
-      pybullet-basics.mdx
-      robot-visualization.mdx
-
     experiments/
-      rrt-parameter-sweep.mdx
-      arm-reachability-study.mdx
-
+    debugging/
     references/
-      useful-papers.mdx
-      useful-repos.mdx
 ```
 
-Do not put everything in one giant file.
+Add new topic folders only when they represent a real broad category.
 
-Prefer many small, clear notes over one massive note.
+Prefer:
+
+```txt
+materials/notes/robotics/configuration-space.mdx
+```
+
+over:
+
+```txt
+materials/notes/robotics/configuration-space-notes-final.mdx
+```
 
 ---
 
-## 4. What you should document
+## 4. What should become a note
 
-Create or update an `.mdx` note whenever you work on something meaningful.
+Create or update an `.mdx` note whenever the student works on something meaningful.
 
 Examples:
 
-- A new robotics concept you learned
-- A new algorithm you implemented
-- A new simulator, robot, sensor, or tool you used
+- A new robotics concept
+- A new ML/RL concept
+- A new algorithm
+- A simulator, robot, sensor, package, or tool
 - A bug that took time to understand
 - A design decision
-- A paper, tutorial, or repo that helped you
+- A paper, tutorial, or repo that helped
 - A failed approach and why it failed
 - A working example someone else can reproduce
-- A visualization, diagram, or result that helped clarify the project
+- A visualization, diagram, table, or experiment result
 
-If you spent more than 30 minutes learning, debugging, designing, or implementing something, it probably deserves a note.
+Rule of thumb:
+
+> If the student spent more than 30 minutes learning, debugging, designing, or implementing something, it probably deserves a note.
 
 ---
 
-## 5. Standard MDX lesson template
+## 5. Standard MDX lesson format
 
-Most serious notes should roughly follow this structure:
+When creating a serious concept or implementation note, use this structure unless the user asks otherwise:
 
 ````mdx
 ---
@@ -140,7 +142,7 @@ title: "Clear Human-Readable Title"
 tags: ["robotics", "motion-planning"]
 topic: "robotics"
 subtopic: "configuration-space"
-lastUpdated: 2026-05-02
+lastUpdated: YYYY-MM-DD
 difficulty: beginner
 ---
 
@@ -197,8 +199,6 @@ Describe what was implemented.
 
 Include relevant file paths, functions, classes, commands, and dependencies.
 
-Example:
-
 ```txt
 Relevant files:
 - src/planning/rrt.py
@@ -245,9 +245,9 @@ Link to helpful papers, websites, repos, videos, or related notes.
 
 ---
 
-## 6. Shorter debugging note template
+## 6. Debugging note format
 
-For debugging notes, use:
+For debugging sessions, use this structure:
 
 ````mdx
 ---
@@ -255,7 +255,7 @@ title: "Debugging: Short Description"
 tags: ["debugging"]
 topic: "debugging"
 subtopic: "short-description"
-lastUpdated: 2026-05-02
+lastUpdated: YYYY-MM-DD
 difficulty: beginner
 ---
 
@@ -273,15 +273,15 @@ Paste relevant error here.
 
 ## Context
 
-What were you trying to do?
+What was the student trying to do?
 
-What command did you run?
+What command did they run?
 
 What files were involved?
 
 ## Failed attempts
 
-What did you try that did not work?
+What did they try that did not work?
 
 - Attempt 1:
 - Attempt 2:
@@ -291,7 +291,7 @@ What did you try that did not work?
 
 What was actually wrong?
 
-If you are not sure, say so.
+If the root cause is unknown, say so clearly.
 
 ## Fix
 
@@ -313,9 +313,9 @@ How can someone avoid this problem next time?
 
 ---
 
-## 7. Experiment note template
+## 7. Experiment note format
 
-For experiments, use:
+For experiments, use this structure:
 
 ````mdx
 ---
@@ -323,7 +323,7 @@ title: "Experiment: Short Description"
 tags: ["experiment"]
 topic: "experiments"
 subtopic: "short-description"
-lastUpdated: 2026-05-02
+lastUpdated: YYYY-MM-DD
 difficulty: intermediate
 ---
 
@@ -335,7 +335,7 @@ What question is this experiment trying to answer?
 
 ## Hypothesis
 
-What did you expect to happen?
+What did the student expect to happen?
 
 ## Setup
 
@@ -378,140 +378,41 @@ What is incomplete or uncertain?
 
 ---
 
-## 8. How to use Claude
+## 8. Claude behavior guidelines
 
-Claude should help you organize and polish your notes, but you are responsible for the truth of the content.
+Claude should:
 
-Use Claude for:
+- Turn rough notes into clean `.mdx`
+- Ask for missing context only when needed
+- Preserve technical details
+- Keep uncertainty visible
+- Suggest better filenames and folder locations
+- Add examples when useful
+- Add TODOs instead of inventing missing information
+- Split giant notes into smaller notes
+- Link related notes using wiki links
+- Make notes readable by a future student
 
-- Turning rough notes into clear `.mdx`
-- Explaining concepts you are learning
-- Creating diagrams, examples, and analogies
-- Refactoring messy notes into a clean wiki structure
-- Writing summaries after debugging sessions
-- Creating “next steps” lists
-- Reviewing whether a note is understandable to another student
+Claude should not:
 
-Do **not** use Claude to:
-
-- Invent results
-- Pretend something worked when it did not
-- Hide uncertainty
-- Replace your own understanding
-- Generate fake citations or fake implementation details
-
-If something is unclear, write that it is unclear.
-
----
-
-## 9. Recommended Claude prompts
-
-### Turn rough notes into an MDX lesson
-
-```txt
-Turn these rough implementation notes into a polished MDX wiki page.
-
-The file should go under:
-
-materials/notes/{topic}/{subtopic}.mdx
-
-Use this structure:
-- frontmatter
-- motivation
-- intuition
-- formal idea
-- minimal example
-- implementation notes
-- results
-- lessons learned
-- open questions / next steps
-- references
-
-Keep technical details accurate.
-Do not invent results.
-Mark uncertain parts as TODO or "needs verification."
-Use callouts where helpful.
-```
-
-### Turn a debugging session into a note
-
-```txt
-Turn this debugging session into an MDX note.
-
-The file should go under:
-
-materials/notes/debugging/{subtopic}.mdx
-
-Include:
-- symptom
-- context
-- failed attempts
-- root cause if known
-- final fix if known
-- commands used
-- how to avoid this next time
-
-Do not invent a root cause if it is still unclear.
-```
-
-### Write a concept lesson
-
-```txt
-Help me write an educational MDX note on [TOPIC].
-
-Audience: robotics student who knows basic programming but is new to this concept.
-
-The file should go under:
-
-materials/notes/{topic}/{subtopic}.mdx
-
-Include:
-- motivation
-- intuition
-- formal definition if needed
-- simple example
-- connection to our project
-- implementation notes
-- references
-
-Make it self-contained.
-```
-
-### Review an existing note
-
-```txt
-Review this MDX note for clarity, correctness, and organization.
-
-Tell me:
-1. What is confusing?
-2. What is missing?
-3. What should be split into another note?
-4. What should be linked to other notes?
-5. What would make this more useful for a future student?
-```
-
-### Improve organization
-
-```txt
-Given these notes, suggest a better structure under:
-
-materials/notes/{topic}/{subtopic}.mdx
-
-Group them by broad topic.
-Suggest filenames.
-Identify duplicate or overlapping notes.
-Identify missing prerequisite notes.
-```
+- Invent experiment results
+- Invent file paths
+- Invent citations
+- Pretend code was run
+- Remove useful debugging context
+- Over-polish away uncertainty
+- Put everything into one large note
+- Use vague language when specific commands, files, or functions are known
 
 ---
 
-## 10. Formatting conventions
+## 9. Formatting conventions
 
-Use the attached `formatting.mdx` file as the formatting reference.
+Use Markdown / MDX formatting consistently.
 
 ### Headings
 
-Use clear numbered sections for long notes:
+Use numbered sections for long notes:
 
 ```md
 ## 1. Motivation
@@ -527,7 +428,7 @@ Use clear numbered sections for long notes:
 
 ### Callouts
 
-Use callouts for important ideas.
+Use callouts for important ideas:
 
 ```md
 > [!note] Key idea
@@ -591,7 +492,7 @@ $$
 
 ### Wiki links
 
-Use wiki links to connect notes.
+Use wiki links to connect notes:
 
 ```md
 See [[robotics/configuration-space]] and [[motion-planning/collision-checking]].
@@ -605,12 +506,38 @@ See [[robotics/configuration-space|configuration space]] for background.
 
 ---
 
+## 10. Recommended workflow with the student
+
+When the student gives rough notes, Claude should usually respond with:
+
+1. Suggested file path
+2. A polished `.mdx` draft
+3. Any TODOs or missing information
+4. Suggested related notes to link
+
+Example:
+
+```txt
+Suggested file:
+materials/notes/robotics/configuration-space.mdx
+```
+
+Then provide the `.mdx` content.
+
+When the student gives a debugging transcript, turn it into a debugging note.
+
+When the student gives experiment notes, turn them into an experiment note.
+
+When the student gives a large mixed note, split it into multiple proposed files.
+
+---
+
 ## 11. Quality bar
 
 A good note is:
 
 - Clear enough that another student can learn from it
-- Specific enough that someone can reproduce your work
+- Specific enough that someone can reproduce the work
 - Honest about what worked and what did not
 - Connected to related notes
 - Organized under `materials/notes/{topic}/{subtopic}.mdx`
@@ -626,18 +553,18 @@ A bad note is:
 - Full of unexplained screenshots
 - Written after the fact with important details forgotten
 - Overly polished but technically vague
-- Generated by Claude without careful review
+- Generated without careful review
 
 ---
 
-## 12. Final rule of thumb
+## 12. Final rule
 
-If you learned something that would save the next student time, write it down.
+If it would save the next student time, write it down.
 
-If you debugged something annoying, write it down.
+If it was annoying to debug, write it down.
 
-If you implemented something reusable, write it down.
+If it is reusable, write it down.
 
-If you are confused, write down what you are confused about.
+If it is confusing, write down what is confusing.
 
 The wiki should become the memory of the project.
