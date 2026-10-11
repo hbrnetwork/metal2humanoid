@@ -1,0 +1,11 @@
+# standwalk: stand / walk PPO policies for Metal2Humanoid embodiments
+mujoco>=3.1
+numpy>=1.24
+torch>=2.1          # CUDA build on the GPU machine: see https://pytorch.org/get-started/locally/
+imageio>=2.31
+imageio-ffmpeg       # mp4 videos (falls back to gif without it)
+matplotlib>=3.7
+pandas
+# notebook
+jupyter
+ipykernel

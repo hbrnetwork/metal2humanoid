@@ -1,0 +1,117 @@
+{
+  "embodiment": "berkeley_humanoid_lite_noarms",
+  "obs_layout": [
+    [
+      "command",
+      3
+    ],
+    [
+      "base_ang_vel",
+      3
+    ],
+    [
+      "projected_gravity",
+      3
+    ],
+    [
+      "joint_pos_minus_default",
+      12
+    ],
+    [
+      "joint_vel",
+      12
+    ],
+    [
+      "last_action",
+      12
+    ],
+    [
+      "gait_phase_sin_cos",
+      2
+    ]
+  ],
+  "joint_names": [
+    "leg_left_hip_roll_joint",
+    "leg_left_hip_yaw_joint",
+    "leg_left_hip_pitch_joint",
+    "leg_left_knee_pitch_joint",
+    "leg_left_ankle_pitch_joint",
+    "leg_left_ankle_roll_joint",
+    "leg_right_hip_roll_joint",
+    "leg_right_hip_yaw_joint",
+    "leg_right_hip_pitch_joint",
+    "leg_right_knee_pitch_joint",
+    "leg_right_ankle_pitch_joint",
+    "leg_right_ankle_roll_joint"
+  ],
+  "default_pose": [
+    0.0,
+    0.0,
+    -0.2,
+    0.4,
+    -0.2,
+    0.0,
+    0.0,
+    0.0,
+    -0.2,
+    0.4,
+    -0.2,
+    0.0
+  ],
+  "kp": [
+    40.0,
+    40.0,
+    40.0,
+    40.0,
+    80.0,
+    40.0,
+    40.0,
+    40.0,
+    40.0,
+    40.0,
+    80.0,
+    40.0
+  ],
+  "kd": [
+    1.5,
+    1.5,
+    1.5,
+    1.5,
+    2.0,
+    1.5,
+    1.5,
+    1.5,
+    1.5,
+    1.5,
+    2.0,
+    1.5
+  ],
+  "torque_limit": [
+    20.0,
+    20.0,
+    20.0,
+    20.0,
+    20.0,
+    20.0,
+    20.0,
+    20.0,
+    20.0,
+    20.0,
+    20.0,
+    20.0
+  ],
+  "action_scale": 0.25,
+  "ctrl_dt": 0.02,
+  "obs_dim": 47,
+  "act_dim": 12,
+  "obs_scales": {
+    "cmd": [
+      2.0,
+      2.0,
+      0.25
+    ],
+    "base_ang_vel": 0.25,
+    "joint_vel": 0.05
+  },
+  "how_to_use": "obs = concat(obs_layout) with the listed scales; action = model(obs); target_q = default_pose + action_scale * action; torque = kp*(target_q - q) - kd*qd clipped to torque_limit, at the motor driver rate; policy runs every ctrl_dt seconds."
+}

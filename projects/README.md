@@ -6,7 +6,7 @@
 4. Design → Motion: project4.ipynb  
 5. Motion → Manipulation: project5.ipynb  
 6. Manipulation → Behavior: project6.ipynb  
-7. Behavior → Models: project7.ipynb  
+7. Behavior → Models (Learning to Walk): [standwalk/](standwalk/) — stand & walk PPO policies for every course embodiment, assignment notebook `standwalk/standwalk_project.ipynb`  
 8. Models → Learning: project8.ipynb
 9. Learning → Ideas (Reflection & Manifesto): project9.pdf 
 10. Ideas → Humanoid (Final Integration): project10.ipynb

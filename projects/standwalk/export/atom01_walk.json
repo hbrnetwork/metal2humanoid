@@ -1,0 +1,172 @@
+{
+  "embodiment": "atom01",
+  "obs_layout": [
+    [
+      "command",
+      3
+    ],
+    [
+      "base_ang_vel",
+      3
+    ],
+    [
+      "projected_gravity",
+      3
+    ],
+    [
+      "joint_pos_minus_default",
+      23
+    ],
+    [
+      "joint_vel",
+      23
+    ],
+    [
+      "last_action",
+      23
+    ],
+    [
+      "gait_phase_sin_cos",
+      2
+    ]
+  ],
+  "joint_names": [
+    "left_thigh_yaw_joint",
+    "left_thigh_roll_joint",
+    "left_thigh_pitch_joint",
+    "left_knee_joint",
+    "left_ankle_pitch_joint",
+    "left_ankle_roll_joint",
+    "right_thigh_yaw_joint",
+    "right_thigh_roll_joint",
+    "right_thigh_pitch_joint",
+    "right_knee_joint",
+    "right_ankle_pitch_joint",
+    "right_ankle_roll_joint",
+    "torso_joint",
+    "left_arm_pitch_joint",
+    "left_arm_roll_joint",
+    "left_arm_yaw_joint",
+    "left_elbow_pitch_joint",
+    "left_elbow_yaw_joint",
+    "right_arm_pitch_joint",
+    "right_arm_roll_joint",
+    "right_arm_yaw_joint",
+    "right_elbow_pitch_joint",
+    "right_elbow_yaw_joint"
+  ],
+  "default_pose": [
+    0.0,
+    0.0,
+    -0.15,
+    0.3,
+    -0.15,
+    0.0,
+    0.0,
+    0.0,
+    -0.15,
+    0.3,
+    -0.15,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "kp": [
+    150.0,
+    150.0,
+    150.0,
+    200.0,
+    200.0,
+    200.0,
+    150.0,
+    150.0,
+    150.0,
+    200.0,
+    200.0,
+    200.0,
+    100.0,
+    40.0,
+    40.0,
+    40.0,
+    40.0,
+    40.0,
+    40.0,
+    40.0,
+    40.0,
+    40.0,
+    40.0
+  ],
+  "kd": [
+    5.0,
+    5.0,
+    5.0,
+    5.0,
+    5.0,
+    5.0,
+    5.0,
+    5.0,
+    5.0,
+    5.0,
+    5.0,
+    5.0,
+    3.0,
+    1.5,
+    1.5,
+    1.5,
+    1.5,
+    1.5,
+    1.5,
+    1.5,
+    1.5,
+    1.5,
+    1.5
+  ],
+  "torque_limit": [
+    120.0,
+    120.0,
+    120.0,
+    150.0,
+    60.0,
+    60.0,
+    120.0,
+    120.0,
+    120.0,
+    150.0,
+    60.0,
+    60.0,
+    80.0,
+    40.0,
+    40.0,
+    40.0,
+    40.0,
+    40.0,
+    40.0,
+    40.0,
+    40.0,
+    40.0,
+    40.0
+  ],
+  "action_scale": 0.25,
+  "ctrl_dt": 0.02,
+  "obs_dim": 80,
+  "act_dim": 23,
+  "obs_scales": {
+    "cmd": [
+      2.0,
+      2.0,
+      0.25
+    ],
+    "base_ang_vel": 0.25,
+    "joint_vel": 0.05
+  },
+  "how_to_use": "obs = concat(obs_layout) with the listed scales; action = model(obs); target_q = default_pose + action_scale * action; torque = kp*(target_q - q) - kd*qd clipped to torque_limit, at the motor driver rate; policy runs every ctrl_dt seconds."
+}
