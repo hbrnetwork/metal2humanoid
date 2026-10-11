@@ -13,7 +13,10 @@ logs/
 gpu_bench/data/
 *.log
 *_executed.ipynb
-standwalk_colab_bundle.zip
 
 # the course repository with the robot models: clone it (see README), do not vendor it
 metal2humanoid/
+
+# outputs the Colab torque notebook writes next to itself
+/*.mp4
+/*_torques.csv

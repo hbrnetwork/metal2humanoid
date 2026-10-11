@@ -77,15 +77,13 @@ embodiments folder lacks it), `atom01`, `frankenstein_v1`, `frankenstein_v0`, `m
 
 `standwalk_colab_policy_torques.ipynb` loads a trained checkpoint, runs it through a command schedule and produces a video
 with every motor's torque (Nm and % of its limit) in the top-right corner, the full torque time series at the physics
-rate, and a motor-sizing table (peak / RMS torque, utilisation, peak power). Open it in Colab, run all, and upload
-`standwalk_colab_bundle.zip` (this folder's code + `checkpoints/`) when asked; the robot models are cloned from the
-public metal2humanoid repository (the generated no-arms model travels inside the bundle). Rebuild the bundle after
-retraining:
+rate, and a motor-sizing table (peak / RMS torque, utilisation, peak power). Nothing to upload: the notebook clones this
+repository and takes the code, the checkpoints and the robot models from it.
 
-```bash
-cp runs/<run>/best.pt checkpoints/<run>.pt
-zip -r standwalk_colab_bundle.zip standwalk checkpoints standwalk_colab_policy_torques.ipynb -x '*/__pycache__/*'
-```
+* [Open the torque notebook in Colab](https://colab.research.google.com/github/hbrnetwork/metal2humanoid/blob/main/projects/standwalk/standwalk_colab_policy_torques.ipynb)
+* [Open the assignment notebook in Colab](https://colab.research.google.com/github/hbrnetwork/metal2humanoid/blob/main/projects/standwalk/standwalk_project.ipynb)
+
+After retraining, copy the new policy into `checkpoints/` (`cp runs/<run>/best.pt checkpoints/<run>.pt`) and commit it.
 
 ## How it fits together
 
